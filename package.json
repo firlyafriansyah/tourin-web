@@ -1,11 +1,12 @@
 {
   "name": "tourin-web",
-  "version": "1.0.1",
-  "description": "Simple tour web library",
+  "version": "1.0.2",
+  "description": "Simple web tour library for React",
   "keywords": [
+    "react",
     "web-tour",
-    "tourin-web",
-    "web-library",
+    "onboarding",
+    "framer-motion",
     "react-library"
   ],
   "homepage": "https://github.com/firlyafriansyah/tourin-web#readme",
@@ -16,12 +17,20 @@
     "type": "git",
     "url": "git+https://github.com/firlyafriansyah/tourin-web.git"
   },
-  "license": "ISC",
+  "license": "MIT",
   "author": "Firly Afriansyah",
-  "type": "commonjs",
-  "main": "dist/index.js",
-  "module": "dist/index.esm.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts"
   },
@@ -33,6 +42,7 @@
     "framer-motion": "^12.0.0"
   },
   "devDependencies": {
+    "@types/react": "^19.2.2",
     "tsup": "^8.5.0",
     "typescript": "^5.5.0"
   }

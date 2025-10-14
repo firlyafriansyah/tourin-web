@@ -1,15 +1,25 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "ES2018",
     "module": "ESNext",
     "jsx": "react-jsx",
+    "outDir": "dist",
     "declaration": true,
     "emitDeclarationOnly": false,
+
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+
     "skipLibCheck": true,
-    "moduleResolution": "node",
-    "outDir": "dist",
-    "baseUrl": "./src"
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+
+    "noEmit": false,
+    "isolatedModules": true,
+    "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "example", "**/*.test.*"]
 }

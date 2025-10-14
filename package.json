@@ -1,6 +1,6 @@
 {
   "name": "tourin-web",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Simple web tour library for React",
   "keywords": [
     "react",

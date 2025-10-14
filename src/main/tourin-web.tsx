@@ -212,7 +212,7 @@ export function TourinWeb({
               </button>
               <button
                 style={{
-                  backgroundColor: `${color}1A`,
+                  backgroundColor: `${color}E6`,
                   border: "none",
                   borderRadius: "8px",
                   color: "white",
@@ -223,7 +223,7 @@ export function TourinWeb({
                 }}
                 onClick={handleNext}
                 onMouseOut={(e) =>
-                  (e.currentTarget.style.backgroundColor = `${color}1A`)
+                  (e.currentTarget.style.backgroundColor = `${color}E6`)
                 }
                 onMouseOver={(e) =>
                   (e.currentTarget.style.backgroundColor = color)

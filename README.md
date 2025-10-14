@@ -1,6 +1,6 @@
 # Tourin Web
 
-**Tourin Web** is a lightweight and easy-to-use guided tour library for React applications — perfect for onboarding users or highlighting features on your web app.  
+**Tourin Web** is a lightweight and easy-to-use guided tour library for React applications — perfect for onboarding users or highlighting features on your web app.
 
 ---
 
@@ -32,10 +32,10 @@ Each step defines what element to highlight and what content to show.
 ```tsx
 const stepData = [
   {
-    selector: '#login-content',
-    title: 'How to Login!',
+    selector: "#login-content",
+    title: "How to Login!",
     content:
-      'First, you need an account to log in. Ask your superior to get the account credentials.',
+      "First, you need an account to log in. Ask your superior to get the account credentials.",
   },
 ];
 ```
@@ -47,7 +47,7 @@ const stepData = [
 Use the provided React hook `useTourinWeb` and the `TourinWeb` component.
 
 ```tsx
-import { useTourinWeb, TourinWeb } from 'tourin-web';
+import { useTourinWeb, TourinWeb } from "tourin-web";
 
 export function MyPage() {
   const { isRunning, startTour, stopTour } = useTourinWeb();
@@ -79,36 +79,46 @@ startTour();
 ## 🧠 API Reference
 
 ### `useTourinWeb()`
+
 Hook for controlling the tour flow.
 
-| Function | Description |
-|-----------|--------------|
-| `startTour()` | Start the tour |
-| `stopTour()` | Stop or finish the tour |
-| `isRunning` | Boolean indicating if the tour is active |
+| Function      | Description                              |
+| ------------- | ---------------------------------------- |
+| `startTour()` | Start the tour                           |
+| `stopTour()`  | Stop or finish the tour                  |
+| `isRunning`   | Boolean indicating if the tour is active |
 
 ---
 
 ### `<TourinWeb />`
+
 Component responsible for rendering the tour UI.
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `steps` | `Array<{ selector: string, title: string, content: string }>` | List of tour steps |
-| `start` | `boolean` | Whether to start the tour automatically |
-| `onFinish` | `() => void` | Callback triggered when the tour ends |
+| Prop       | Type                                                          | Description                             |
+| ---------- | ------------------------------------------------------------- | --------------------------------------- |
+| `steps`    | `Array<{ selector: string, title: string, content: string }>` | List of tour steps                      |
+| `start`    | `boolean`                                                     | Whether to start the tour automatically |
+| `onFinish` | `() => void`                                                  | Callback triggered when the tour ends   |
 
 ---
 
 ## 🧩 Example
 
 ```tsx
-import React from 'react';
-import { useTourinWeb, TourinWeb } from 'tourin-web';
+import React from "react";
+import { useTourinWeb, TourinWeb } from "tourin-web";
 
 const steps = [
-  { selector: '#nav', title: 'Navigation', content: 'This is the main navigation bar.' },
-  { selector: '#login-content', title: 'Login', content: 'Here you can log in to your account.' },
+  {
+    selector: "#nav",
+    title: "Navigation",
+    content: "This is the main navigation bar.",
+  },
+  {
+    selector: "#login-content",
+    title: "Login",
+    content: "Here you can log in to your account.",
+  },
 ];
 
 export default function App() {
@@ -131,14 +141,14 @@ export default function App() {
 
 ## 🧰 Requirements
 
-| Dependency | Minimum Version |
-|-------------|----------------|
-| React | `>=17` |
-| React DOM | `>=17` |
+| Dependency    | Minimum Version                  |
+| ------------- | -------------------------------- |
+| React         | `>=17`                           |
+| React DOM     | `>=17`                           |
 | Framer Motion | `>=12` (automatically installed) |
 
 ---
 
 ## 📜 License
 
-MIT © Your Name
+MIT © Firly Afriansyah

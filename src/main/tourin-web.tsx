@@ -1,19 +1,25 @@
-import * as React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import * as React from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
-interface Step {
+interface TourinStep {
   title: string;
   content: string;
   selector: string;
 }
 
 interface TourinProps {
-  steps: Step[];
+  color?: string;
   start?: boolean;
+  steps: TourinStep[];
   onFinish?: () => void;
 }
 
-export function TourinWeb({ steps, start = false, onFinish }: TourinProps) {
+export function TourinWeb({
+  color = "#3b82f6",
+  onFinish,
+  start = false,
+  steps,
+}: TourinProps) {
   const [running, setRunning] = React.useState(start);
   const [stepIndex, setStepIndex] = React.useState(0);
   const [rect, setRect] = React.useState<DOMRect | null>(null);
@@ -37,7 +43,7 @@ export function TourinWeb({ steps, start = false, onFinish }: TourinProps) {
       if (el) {
         const r = el.getBoundingClientRect();
         setRect(r);
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
   }, [stepIndex, step, running]);
@@ -53,18 +59,18 @@ export function TourinWeb({ steps, start = false, onFinish }: TourinProps) {
           initial={{ opacity: 0 }}
           style={{
             inset: 0,
-            pointerEvents: 'auto',
-            position: 'fixed',
+            pointerEvents: "auto",
+            position: "fixed",
             zIndex: 9999,
           }}
         >
           <svg
             style={{
-              height: '100%',
+              height: "100%",
               inset: 0,
-              pointerEvents: 'none',
-              position: 'absolute',
-              width: '100%',
+              pointerEvents: "none",
+              position: "absolute",
+              width: "100%",
             }}
           >
             <defs>
@@ -85,7 +91,7 @@ export function TourinWeb({ steps, start = false, onFinish }: TourinProps) {
               fill="rgba(0, 0, 0, 0.6)"
               height="100%"
               mask="url(#spotlight-mask)"
-              style={{ pointerEvents: 'auto' }}
+              style={{ pointerEvents: "auto" }}
               width="100%"
             />
           </svg>
@@ -101,13 +107,13 @@ export function TourinWeb({ steps, start = false, onFinish }: TourinProps) {
             }}
             initial={{ opacity: 0, scale: 0.9 }}
             style={{
-              border: '4px solid #3b82f6',
-              borderRadius: '12px',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-              pointerEvents: 'none',
-              position: 'absolute',
+              border: `4px solid ${color}`,
+              borderRadius: "12px",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+              pointerEvents: "none",
+              position: "absolute",
             }}
-            transition={{ type: 'spring', stiffness: 120, damping: 15 }}
+            transition={{ type: "spring", stiffness: 120, damping: 15 }}
           />
 
           <motion.div
@@ -115,55 +121,59 @@ export function TourinWeb({ steps, start = false, onFinish }: TourinProps) {
             exit={{ opacity: 0 }}
             initial={{ opacity: 0, y: 20 }}
             style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-              color: '#1f2937',
+              backgroundColor: "white",
+              borderRadius: "16px",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+              color: "#1f2937",
               left: rect.left + rect.width / 2 - 160,
-              padding: '20px',
-              position: 'absolute',
+              padding: "20px",
+              position: "absolute",
               top: rect.bottom + 20,
-              width: '320px',
+              width: "320px",
             }}
             transition={{ duration: 0.3 }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <p style={{ fontSize: '12px' }}>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <p style={{ fontSize: "12px" }}>
                 Step {stepIndex + 1} of {steps.length}
               </p>
               <button
                 style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'inherit',
-                  cursor: 'pointer',
-                  fontSize: '12px',
+                  background: "none",
+                  border: "none",
+                  color: "inherit",
+                  cursor: "pointer",
+                  fontSize: "12px",
                   padding: 0,
                 }}
                 onClick={() => {
                   setRunning(false);
                   onFinish?.();
                 }}
-                onMouseOut={(e) => (e.currentTarget.style.textDecoration = 'none')}
-                onMouseOver={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+                onMouseOut={(e) =>
+                  (e.currentTarget.style.textDecoration = "none")
+                }
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.textDecoration = "underline")
+                }
               >
                 Skip
               </button>
             </div>
             <h3
               style={{
-                fontSize: '18px',
+                fontSize: "18px",
                 fontWeight: 600,
-                marginTop: '4px',
+                marginTop: "4px",
               }}
             >
               {step.title}
             </h3>
             <p
               style={{
-                color: '#4b5563',
-                fontSize: '14px',
-                marginTop: '8px',
+                color: "#4b5563",
+                fontSize: "14px",
+                marginTop: "8px",
               }}
             >
               {step.content}
@@ -171,49 +181,55 @@ export function TourinWeb({ steps, start = false, onFinish }: TourinProps) {
 
             <div
               style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                marginTop: '16px',
+                display: "flex",
+                justifyContent: "space-between",
+                marginTop: "16px",
               }}
             >
               <button
                 disabled={stepIndex === 0}
                 style={{
-                  backgroundColor: '#e5e7eb',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: stepIndex === 0 ? 'not-allowed' : 'pointer',
-                  fontSize: '14px',
+                  backgroundColor: "#e5e7eb",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: stepIndex === 0 ? "not-allowed" : "pointer",
+                  fontSize: "14px",
                   opacity: stepIndex === 0 ? 0.5 : 1,
-                  padding: '6px 12px',
-                  transition: 'background-color 0.15s',
+                  padding: "6px 12px",
+                  transition: "background-color 0.15s",
                 }}
                 onClick={handlePrev}
                 onMouseOut={(e) => {
-                  if (stepIndex !== 0) e.currentTarget.style.backgroundColor = '#e5e7eb';
+                  if (stepIndex !== 0)
+                    e.currentTarget.style.backgroundColor = "#e5e7eb";
                 }}
                 onMouseOver={(e) => {
-                  if (stepIndex !== 0) e.currentTarget.style.backgroundColor = '#d1d5db';
+                  if (stepIndex !== 0)
+                    e.currentTarget.style.backgroundColor = "#d1d5db";
                 }}
               >
                 Back
               </button>
               <button
                 style={{
-                  backgroundColor: '#2563eb',
-                  border: 'none',
-                  borderRadius: '8px',
-                  color: 'white',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  padding: '6px 12px',
-                  transition: 'background-color 0.15s',
+                  backgroundColor: color,
+                  border: "none",
+                  borderRadius: "8px",
+                  color: "white",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  padding: "6px 12px",
+                  transition: "background-color 0.15s",
                 }}
                 onClick={handleNext}
-                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
-                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#1d4ed8')}
+                onMouseOut={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#2563eb")
+                }
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#1d4ed8")
+                }
               >
-                {stepIndex < steps.length - 1 ? 'Next' : 'Finish'}
+                {stepIndex < steps.length - 1 ? "Next" : "Finish"}
               </button>
             </div>
           </motion.div>

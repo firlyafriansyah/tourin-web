@@ -5,7 +5,8 @@ export interface TourinStep {
 }
 
 export interface TourinProps {
-  steps: TourinStep[];
+  color?: string;
   start?: boolean;
+  steps: TourinStep[];
   onFinish?: () => void;
 }

@@ -58,7 +58,9 @@ export function MyPage() {
       <button onClick={startTour}>Start Tour</button>
 
       {/* Render the tour only when active */}
-      {isRunning && <TourinWeb start onFinish={stopTour} steps={stepData} />}
+      {isRunning && (
+        <TourinWeb start onFinish={stopTour} steps={stepData} color="#3b82f6" />
+      )}
     </>
   );
 }
@@ -94,11 +96,12 @@ Hook for controlling the tour flow.
 
 Component responsible for rendering the tour UI.
 
-| Prop       | Type                                                          | Description                             |
-| ---------- | ------------------------------------------------------------- | --------------------------------------- |
-| `steps`    | `Array<{ selector: string, title: string, content: string }>` | List of tour steps                      |
-| `start`    | `boolean`                                                     | Whether to start the tour automatically |
-| `onFinish` | `() => void`                                                  | Callback triggered when the tour ends   |
+| Prop       | Type                                                          | Description                               |
+| ---------- | ------------------------------------------------------------- | ----------------------------------------- |
+| `steps`    | `Array<{ selector: string, title: string, content: string }>` | List of tour steps                        |
+| `start`    | `boolean (opsional - default: false)`                         | Whether to start the tour automatically   |
+| `onFinish` | `() => void`                                                  | Callback triggered when the tour ends     |
+| `color`    | `string (opsional - default: #3b82f6)`                        | Hex color for highlight border and button |
 
 ---
 

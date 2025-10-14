@@ -1,6 +1,6 @@
 {
   "name": "tourin-web",
-  "version": "1.0.8",
+  "version": "1.1.0",
   "description": "Simple web tour library for React",
   "keywords": [
     "react",
@@ -33,7 +33,11 @@
   ],
   "scripts": {
     "build": "tsup",
-    "publish": "npm run build && npm publish --access public"
+    "release": "npm run build && npm publish --access public",
+    "version:bump": "standard-version",
+    "release:patch": "npm run version:bump -- --release-as patch && git push --follow-tags && npm run release",
+    "release:minor": "npm run version:bump -- --release-as minor && git push --follow-tags && npm run release",
+    "release:major": "npm run version:bump -- --release-as major && git push --follow-tags && npm run release"
   },
   "peerDependencies": {
     "react": ">=17.0.0 <20.0.0",
@@ -44,6 +48,7 @@
   },
   "devDependencies": {
     "@types/react": "^19.2.2",
+    "standard-version": "^9.5.0",
     "tsup": "^8.5.0",
     "typescript": "^5.5.0"
   }

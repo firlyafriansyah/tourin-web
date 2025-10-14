@@ -1,6 +1,6 @@
 {
   "name": "tourin-web",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Simple web tour library for React",
   "keywords": [
     "react",
@@ -32,7 +32,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts"
+    "build": "tsup"
   },
   "peerDependencies": {
     "react": ">=17.0.0 <20.0.0",

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/firlyafriansyah/tourin-web/compare/v1.2.0...v1.3.0) (2025-10-15)
+
+
+### Features
+
+* **core:** add size props ([8199bdd](https://github.com/firlyafriansyah/tourin-web/commit/8199bddcf537c35092c87b28e1df47727a674ce8))
+
 ## [1.2.0](https://github.com/firlyafriansyah/tourin-web/compare/v1.1.2...v1.2.0) (2025-10-15)
 
 

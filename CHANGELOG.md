@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/firlyafriansyah/tourin-web/compare/v1.1.2...v1.2.0) (2025-10-15)
+
+
+### Features
+
+* **core:** add action on step ([9160dd3](https://github.com/firlyafriansyah/tourin-web/commit/9160dd38ba68081e94d774fb0c852b1bc3f13cdc))
+
 ### [1.1.2](https://github.com/firlyafriansyah/tourin-web/compare/v1.1.1...v1.1.2) (2025-10-14)
 
 

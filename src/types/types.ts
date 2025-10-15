@@ -1,7 +1,8 @@
 export type TooltipPosition = "top" | "bottom" | "left" | "right";
+export type Sized = "xs" | "sm" | "md" | "lg" | "xl";
 
 export interface ActionProps {
-  action: "click" | "typing";
+  action: "click" | "right-click" | "typing";
   typingValue?: string;
 }
 
@@ -18,5 +19,6 @@ export interface TourinProps {
   color?: string;
   start?: boolean;
   steps: TourinStep[];
+  size?: Sized;
   onFinish?: () => void;
 }

@@ -1,64 +1,176 @@
+import { AnimatePresence, motion } from "framer-motion";
 import * as React from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import type { TourinProps } from "../types/types";
 
-const TOOLTIP_WIDTH = 320;
 const TOOLTIP_SPACING = 20;
+const VIEWPORT_PADDING = 16;
 const HIGHLIGHT_PADDING = 8;
 const HIGHLIGHT_BORDER_RADIUS = 12;
 
 const DELAY_TIMES = {
+  long: 500,
   short: 100,
   medium: 300,
-  long: 500,
 } as const;
 
+const SIZED = {
+  title: {
+    xs: "12px",
+    sm: "14px",
+    md: "16px",
+    lg: "18px",
+    xl: "20px",
+  },
+  content: {
+    xs: "10px",
+    sm: "12px",
+    md: "14px",
+    lg: "16px",
+    xl: "18px",
+  },
+  helper: {
+    xs: "8px",
+    sm: "10px",
+    md: "12px",
+    lg: "14px",
+    xl: "16px",
+  },
+  tooltipWidth: {
+    xs: 240,
+    sm: 280,
+    md: 320,
+    lg: 360,
+    xl: 400,
+  },
+};
+
+type TooltipPosition = "bottom" | "top" | "left" | "right";
+
 export function TourinWeb({
-  color = "#3b82f6",
-  onFinish,
-  start = false,
   steps,
+  onFinish,
+  size = "md",
+  start = false,
+  color = "#3b82f6",
 }: TourinProps) {
   const [running, setRunning] = React.useState(start);
   const [stepIndex, setStepIndex] = React.useState(0);
+  const tooltipRef = React.useRef<HTMLDivElement>(null);
+  const [tooltipHeight, setTooltipHeight] = React.useState(0);
   const [rect, setRect] = React.useState<DOMRect | null>(null);
 
-  const currentStep = steps[stepIndex];
-  const tooltipPosition = currentStep?.tooltipPosition || "bottom";
   const isFirstStep = stepIndex === 0;
+  const currentStep = steps[stepIndex];
   const isLastStep = stepIndex === steps.length - 1;
+  const requestedPosition = currentStep?.tooltipPosition || "bottom";
 
+  const getBestPosition = React.useCallback(
+    (rect: DOMRect, requestedPos?: TooltipPosition): TooltipPosition => {
+      if (!rect) return "bottom";
+
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      const estimatedHeight = tooltipHeight || 200;
+
+      if (requestedPos) {
+        const fits = checkPositionFits(
+          rect,
+          requestedPos,
+          viewportWidth,
+          viewportHeight,
+          estimatedHeight
+        );
+        if (fits) return requestedPos;
+      }
+
+      const positions: TooltipPosition[] = ["bottom", "top", "right", "left"];
+
+      for (const pos of positions) {
+        if (
+          checkPositionFits(
+            rect,
+            pos,
+            viewportWidth,
+            viewportHeight,
+            estimatedHeight
+          )
+        ) {
+          return pos;
+        }
+      }
+
+      return "bottom";
+    },
+    [tooltipHeight]
+  );
+  const checkPositionFits = (
+    rect: DOMRect,
+    position: TooltipPosition,
+    viewportWidth: number,
+    viewportHeight: number,
+    tooltipH: number
+  ): boolean => {
+    const tooltipW = SIZED.tooltipWidth[size];
+
+    switch (position) {
+      case "bottom":
+        return (
+          rect.bottom + TOOLTIP_SPACING + tooltipH + VIEWPORT_PADDING <
+          viewportHeight
+        );
+      case "top":
+        return rect.top - TOOLTIP_SPACING - tooltipH - VIEWPORT_PADDING > 0;
+      case "left":
+        return rect.left - TOOLTIP_SPACING - tooltipW - VIEWPORT_PADDING > 0;
+      case "right":
+        return (
+          rect.right + TOOLTIP_SPACING + tooltipW + VIEWPORT_PADDING <
+          viewportWidth
+        );
+      default:
+        return false;
+    }
+  };
+  const actualPosition = React.useMemo(() => {
+    if (!rect) return requestedPosition;
+    return getBestPosition(rect, requestedPosition);
+  }, [rect, requestedPosition, getBestPosition]);
   const getTooltipStyle = React.useCallback(() => {
     if (!rect) return {};
-
-    const centerX = rect.left + rect.width / 2 - TOOLTIP_WIDTH / 2;
-    const centerY = rect.top + rect.height / 2;
 
     const positions = {
       bottom: {
         top: rect.bottom + TOOLTIP_SPACING,
-        left: centerX,
+        left: Math.max(
+          VIEWPORT_PADDING,
+          Math.min(
+            rect.left + rect.width / 2 - SIZED.tooltipWidth[size] / 2,
+            window.innerWidth - SIZED.tooltipWidth[size] - VIEWPORT_PADDING
+          )
+        ),
       },
       top: {
-        top: rect.top - TOOLTIP_SPACING,
-        left: centerX,
-        transform: "translateY(-100%)",
+        bottom: window.innerHeight - rect.top + TOOLTIP_SPACING,
+        left: Math.max(
+          VIEWPORT_PADDING,
+          Math.min(
+            rect.left + rect.width / 2 - SIZED.tooltipWidth[size] / 2,
+            window.innerWidth - SIZED.tooltipWidth[size] - VIEWPORT_PADDING
+          )
+        ),
       },
       left: {
-        top: centerY,
-        left: rect.left - TOOLTIP_SPACING,
-        transform: "translate(-100%, -50%)",
+        top: rect.top,
+        right: window.innerWidth - rect.left + TOOLTIP_SPACING,
       },
       right: {
-        top: centerY,
+        top: rect.top,
         left: rect.right + TOOLTIP_SPACING,
-        transform: "translateY(-50%)",
       },
     };
 
-    return positions[tooltipPosition];
-  }, [rect, tooltipPosition]);
-
+    return positions[actualPosition];
+  }, [rect, actualPosition]);
   const updateRect = React.useCallback(() => {
     if (!running || !currentStep) return;
 
@@ -68,7 +180,6 @@ export function TourinWeb({
       setRect(newRect);
     }
   }, [running, currentStep]);
-
   const executeStepAction = React.useCallback(() => {
     if (!currentStep?.action || !currentStep.selector) return;
 
@@ -79,6 +190,23 @@ export function TourinWeb({
       case "click":
         element.click();
         break;
+      case "right-click":
+        const rect = element.getBoundingClientRect();
+
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+
+        const rightClickEvent = new MouseEvent("contextmenu", {
+          bubbles: true,
+          cancelable: true,
+          view: window,
+          button: 2,
+          clientX: x,
+          clientY: y,
+        });
+
+        element.dispatchEvent(rightClickEvent);
+        break;
       case "typing":
         if (currentStep.action.typingValue) {
           element.innerText = currentStep.action.typingValue;
@@ -86,12 +214,10 @@ export function TourinWeb({
         break;
     }
   }, [currentStep]);
-
   const finishTour = React.useCallback(() => {
     setRunning(false);
     onFinish?.();
   }, [onFinish]);
-
   const advanceStep = React.useCallback(() => {
     if (isLastStep) {
       finishTour();
@@ -99,7 +225,6 @@ export function TourinWeb({
       setStepIndex((prev) => prev + 1);
     }
   }, [isLastStep, finishTour]);
-
   const handleNext = React.useCallback(() => {
     executeStepAction();
 
@@ -115,14 +240,18 @@ export function TourinWeb({
 
     setTimeout(advanceStep, delayTime);
   }, [currentStep, executeStepAction, advanceStep]);
-
   const handlePrev = React.useCallback(() => {
     if (!isFirstStep) {
       setStepIndex((prev) => prev - 1);
     }
   }, [isFirstStep]);
 
-  // Update rect when step changes
+  React.useEffect(() => {
+    if (tooltipRef.current) {
+      const height = tooltipRef.current.offsetHeight;
+      setTooltipHeight(height);
+    }
+  }, [stepIndex, currentStep]);
   React.useEffect(() => {
     if (!running || !currentStep) return;
 
@@ -133,8 +262,6 @@ export function TourinWeb({
     setRect(newRect);
     el.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [stepIndex, currentStep, running]);
-
-  // Handle window resize
   React.useEffect(() => {
     if (!running) return;
 
@@ -157,7 +284,6 @@ export function TourinWeb({
           zIndex: 9999,
         }}
       >
-        {/* Overlay with spotlight cutout */}
         <svg
           style={{
             height: "100%",
@@ -190,7 +316,6 @@ export function TourinWeb({
           />
         </svg>
 
-        {/* Highlight border */}
         <motion.div
           animate={{
             height: rect.height + HIGHLIGHT_PADDING * 2,
@@ -211,8 +336,8 @@ export function TourinWeb({
           transition={{ type: "spring", stiffness: 120, damping: 15 }}
         />
 
-        {/* Tooltip */}
         <motion.div
+          ref={tooltipRef}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0 }}
           initial={{ opacity: 0, y: 20 }}
@@ -223,12 +348,11 @@ export function TourinWeb({
             color: "#1f2937",
             padding: "20px",
             position: "absolute",
-            width: `${TOOLTIP_WIDTH}px`,
+            width: `${SIZED.tooltipWidth[size]}px`,
             ...getTooltipStyle(),
           }}
           transition={{ duration: 0.3 }}
         >
-          {/* Header */}
           <div
             style={{
               display: "flex",
@@ -236,7 +360,7 @@ export function TourinWeb({
               alignItems: "center",
             }}
           >
-            <p style={{ fontSize: "12px", margin: 0 }}>
+            <p style={{ fontSize: SIZED.helper[size], margin: 0 }}>
               Step {stepIndex + 1} of {steps.length}
             </p>
             <button
@@ -246,7 +370,7 @@ export function TourinWeb({
                 border: "none",
                 color: "inherit",
                 cursor: "pointer",
-                fontSize: "12px",
+                fontSize: SIZED.helper[size],
                 padding: 0,
               }}
               onClick={finishTour}
@@ -261,10 +385,9 @@ export function TourinWeb({
             </button>
           </div>
 
-          {/* Title */}
           <h3
             style={{
-              fontSize: "18px",
+              fontSize: SIZED.title[size],
               fontWeight: 600,
               margin: 0,
               marginTop: "4px",
@@ -273,11 +396,10 @@ export function TourinWeb({
             {currentStep.title}
           </h3>
 
-          {/* Content */}
           <p
             style={{
               color: "#4b5563",
-              fontSize: "14px",
+              fontSize: SIZED.content[size],
               margin: 0,
               marginTop: "8px",
             }}
@@ -285,7 +407,6 @@ export function TourinWeb({
             {currentStep.content}
           </p>
 
-          {/* Navigation buttons */}
           <div
             style={{
               display: "flex",
@@ -302,7 +423,7 @@ export function TourinWeb({
                 border: "none",
                 borderRadius: "8px",
                 cursor: isFirstStep ? "not-allowed" : "pointer",
-                fontSize: "14px",
+                fontSize: SIZED.content[size],
                 opacity: isFirstStep ? 0.5 : 1,
                 padding: "6px 12px",
                 transition: "background-color 0.15s",
@@ -327,7 +448,7 @@ export function TourinWeb({
                 borderRadius: "8px",
                 color: "white",
                 cursor: "pointer",
-                fontSize: "14px",
+                fontSize: SIZED.content[size],
                 padding: "6px 12px",
                 transition: "background-color 0.15s",
               }}

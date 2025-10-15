@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from "react";
 
 export function useTourinWeb() {
   const [isRunning, setIsRunning] = React.useState(false);

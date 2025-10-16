@@ -64,45 +64,6 @@ export function TourinWeb({
   const isLastStep = stepIndex === steps.length - 1;
   const requestedPosition = currentStep?.tooltipPosition || "bottom";
 
-  const getBestPosition = React.useCallback(
-    (rect: DOMRect, requestedPos?: TooltipPosition): TooltipPosition => {
-      if (!rect) return "bottom";
-
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
-      const estimatedHeight = tooltipHeight || 200;
-
-      if (requestedPos) {
-        const fits = checkPositionFits(
-          rect,
-          requestedPos,
-          viewportWidth,
-          viewportHeight,
-          estimatedHeight
-        );
-        if (fits) return requestedPos;
-      }
-
-      const positions: TooltipPosition[] = ["bottom", "top", "right", "left"];
-
-      for (const pos of positions) {
-        if (
-          checkPositionFits(
-            rect,
-            pos,
-            viewportWidth,
-            viewportHeight,
-            estimatedHeight
-          )
-        ) {
-          return pos;
-        }
-      }
-
-      return "bottom";
-    },
-    [tooltipHeight]
-  );
   const checkPositionFits = (
     rect: DOMRect,
     position: TooltipPosition,
@@ -131,10 +92,51 @@ export function TourinWeb({
         return false;
     }
   };
+
+  const getBestPosition = React.useCallback(
+    (rect: DOMRect, requestedPos?: TooltipPosition): TooltipPosition => {
+      if (!rect) return "bottom";
+
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      const estimatedHeight = tooltipHeight || 200;
+
+      if (requestedPos) {
+        const fits = checkPositionFits(
+          rect,
+          requestedPos,
+          viewportWidth,
+          viewportHeight,
+          estimatedHeight
+        );
+        if (fits) return requestedPos;
+      }
+
+      const positions: TooltipPosition[] = ["bottom", "top", "right", "left"];
+      for (const pos of positions) {
+        if (
+          checkPositionFits(
+            rect,
+            pos,
+            viewportWidth,
+            viewportHeight,
+            estimatedHeight
+          )
+        ) {
+          return pos;
+        }
+      }
+
+      return "bottom";
+    },
+    [tooltipHeight]
+  );
+
   const actualPosition = React.useMemo(() => {
     if (!rect) return requestedPosition;
     return getBestPosition(rect, requestedPosition);
   }, [rect, requestedPosition, getBestPosition]);
+
   const getTooltipStyle = React.useCallback(() => {
     if (!rect) return {};
 
@@ -171,28 +173,27 @@ export function TourinWeb({
 
     return positions[actualPosition];
   }, [rect, actualPosition]);
+
   const updateRect = React.useCallback(() => {
     if (!running || !currentStep) return;
-
     const el = document.querySelector(currentStep.selector);
     if (el) {
       const newRect = el.getBoundingClientRect();
       setRect(newRect);
     }
   }, [running, currentStep]);
+
   const executeStepAction = React.useCallback(() => {
     if (!currentStep?.action || !currentStep.selector) return;
-
     const element = document.querySelector(currentStep.selector);
     if (!(element instanceof HTMLElement)) return;
 
-    switch (currentStep.action.action) {
+    switch (currentStep.action) {
       case "click":
         element.click();
         break;
       case "right-click":
         const rect = element.getBoundingClientRect();
-
         const x = rect.left + rect.width / 2;
         const y = rect.top + rect.height / 2;
 
@@ -207,17 +208,14 @@ export function TourinWeb({
 
         element.dispatchEvent(rightClickEvent);
         break;
-      case "typing":
-        if (currentStep.action.typingValue) {
-          element.innerText = currentStep.action.typingValue;
-        }
-        break;
     }
   }, [currentStep]);
+
   const finishTour = React.useCallback(() => {
     setRunning(false);
     onFinish?.();
   }, [onFinish]);
+
   const advanceStep = React.useCallback(() => {
     if (isLastStep) {
       finishTour();
@@ -225,6 +223,7 @@ export function TourinWeb({
       setStepIndex((prev) => prev + 1);
     }
   }, [isLastStep, finishTour]);
+
   const handleNext = React.useCallback(() => {
     executeStepAction();
 
@@ -240,6 +239,7 @@ export function TourinWeb({
 
     setTimeout(advanceStep, delayTime);
   }, [currentStep, executeStepAction, advanceStep]);
+
   const handlePrev = React.useCallback(() => {
     if (!isFirstStep) {
       setStepIndex((prev) => prev - 1);
@@ -252,6 +252,7 @@ export function TourinWeb({
       setTooltipHeight(height);
     }
   }, [stepIndex, currentStep]);
+
   React.useEffect(() => {
     if (!running || !currentStep) return;
 
@@ -262,11 +263,32 @@ export function TourinWeb({
     setRect(newRect);
     el.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [stepIndex, currentStep, running]);
+
+  // ✅ Improved scroll + resize sync with requestAnimationFrame throttle
   React.useEffect(() => {
     if (!running) return;
 
-    window.addEventListener("resize", updateRect);
-    return () => window.removeEventListener("resize", updateRect);
+    let ticking = false;
+
+    const throttledUpdateRect = () => {
+      if (ticking) return;
+      ticking = true;
+
+      requestAnimationFrame(() => {
+        updateRect();
+        ticking = false;
+      });
+    };
+
+    const handleScroll = () => throttledUpdateRect();
+
+    window.addEventListener("resize", throttledUpdateRect);
+    window.addEventListener("scroll", handleScroll, true); // capture scrolls in nested containers
+
+    return () => {
+      window.removeEventListener("resize", throttledUpdateRect);
+      window.removeEventListener("scroll", handleScroll, true);
+    };
   }, [running, updateRect]);
 
   if (!running || !rect) return null;

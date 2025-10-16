@@ -1,16 +1,11 @@
 export type TooltipPosition = "top" | "bottom" | "left" | "right";
 export type Sized = "xs" | "sm" | "md" | "lg" | "xl";
 
-export interface ActionProps {
-  action: "click" | "right-click" | "typing";
-  typingValue?: string;
-}
-
 export interface TourinStep {
   selector: string;
   title: string;
   content: string;
-  action?: ActionProps;
+  action?: "click" | "right-click";
   tooltipPosition?: TooltipPosition;
   delayed?: "short" | "medium" | "long" | number;
 }

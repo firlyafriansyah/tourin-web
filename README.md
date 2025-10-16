@@ -36,6 +36,8 @@ const stepData = [
     title: "How to Login!",
     content:
       "First, you need an account to log in. Ask your superior to get the account credentials.",
+    action: "click",
+    delayed: "short",
   },
 ];
 ```
@@ -59,7 +61,13 @@ export function MyPage() {
 
       {/* Render the tour only when active */}
       {isRunning && (
-        <TourinWeb start onFinish={stopTour} steps={stepData} color="#3b82f6" />
+        <TourinWeb
+          start
+          size="md"
+          color="#3b82f6"
+          steps={stepData}
+          onFinish={stopTour}
+        />
       )}
     </>
   );
